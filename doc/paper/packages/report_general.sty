@@ -1,0 +1,81 @@
+\ProvidesPackage{packages/report_general}
+
+% ── 1. Encoding & Font ────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{kotex}
+
+% ── 2. Layout ────────────────────────────────────────────
+\usepackage[a4paper, top=25mm, bottom=25mm, left=25mm, right=25mm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{parskip}
+\setlength{\parskip}{6pt}
+
+% ── 3. Color & Boxes ─────────────────────────────────────
+\usepackage[dvipsnames]{xcolor}
+\usepackage[most]{tcolorbox}
+
+% ── 4. Math ──────────────────────────────────────────────
+\usepackage{amsmath, amssymb, mathtools, bm}
+\usepackage{siunitx}
+\usepackage{amsthm}
+
+% ── 5. Graphics ──────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% ── 6. Tables ────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage{multirow}
+\usepackage{multicol}
+
+% ── 7. Algorithms ────────────────────────────────────────
+\usepackage[ruled,vlined]{algorithm2e}
+
+% ── 8. TOC & Section Style ───────────────────────────────
+\usepackage{etoc}
+\usepackage{titlesec}
+
+% ── 9. Links & Icons ─────────────────────────────────────
+\usepackage[unicode, draft=false, colorlinks=true, breaklinks=true,
+            hypertexnames=false]{hyperref}
+\makeatletter
+\pdfstringdefDisableCommands{%
+  \def\textcolor#1#2{#2}%
+  \let\color\@gobble
+  \let\ell l%
+  \let\partial d%
+  \let\mathbf\relax
+  \let\mathcal\relax
+  \let\hat\relax
+  \let\dot\relax
+}
+\makeatother
+\usepackage{fontawesome5}
+
+% ── 10. Lists ────────────────────────────────────────────
+\usepackage{enumitem}
+
+% ── 11. References & Misc ────────────────────────────────
+\usepackage{cite}
+\usepackage{url}
+\usepackage{pdfpages}
+
+% ── 12. Theorem Environments ─────────────────────────────
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{example}{Example}[section]
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}[section]

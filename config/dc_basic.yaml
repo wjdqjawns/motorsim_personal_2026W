@@ -1,0 +1,34 @@
+# DC motor closed-loop simulation. All units SI, mechanical angle/speed (rad, rad/s).
+# Run:  python run.py simulate -c config/dc_basic.yaml [--mode current|torque|speed|position|voltage]
+name: dc_basic
+
+motor:
+  type: dc
+  params: {R: 1.0, L: 0.5e-3, Kt: 0.05, J: 2.0e-5}   # Ke defaults to Kt
+  limits: {v_max: 24.0, i_max: 5.0}
+
+friction:
+  model: stribeck            # none | viscous | coulomb | coulomb_viscous | stribeck | lugre
+  params: {B: 1.0e-5, Tc: 5.0e-3, Tst: 8.0e-3, ws: 5.0, delta: 2.0, sigma0: 50.0, sigma1: 0.05}
+
+load:
+  torque: 0.0
+  cogging: {amplitude: 0.0, periods: 0, phase: 0.0}
+
+control:
+  mode: speed                # voltage | current | torque | speed | position
+  Ts: 1.0e-4                 # 10 kHz control loop
+  bandwidth_hz: {current: 500, speed: 30, position: 5}
+  nominal: {}                # controller model, e.g. {R: 0.9, Kt: 0.055}; default = true values
+  gains: {}                  # optional: {current: {kp: .., ki: ..}, speed: {kp: .., ki: ..}, position: {kp: ..}}
+  speed_max: 300.0
+
+reference:                   # a list is summed
+  - {type: steps, values: [0, 100, -100, 20, 0], duration: 0.1}
+
+sensors:
+  current_noise: 0.01        # A (std)
+  encoder_cpr: 65536         # counts/rev
+  speed_lpf_hz: 300
+
+sim: {duration: 0.5, substeps: 4, seed: 0, batch: 1}

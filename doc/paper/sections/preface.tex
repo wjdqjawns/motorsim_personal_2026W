@@ -1,0 +1,37 @@
+\chapter*{Preface} \label{sec:preface}
+    \addcontentsline{toc}{chapter}{Preface}
+    제어이론은 동적 시스템이 원하는 거동을 하도록 만드는 방법을 다루는 학문이다. 이를 위해 제어이론은 네 가지 질문에 답한다. \textbf{시스템을 어떻게 표현하는가(모델링, Modeling)}, \textbf{그 거동을 어떻게 이해하는가(해석, Analysis)}, \textbf{모델과 상태를 데이터로부터 어떻게 알아내는가(추정, Estimation)}, 그리고 \textbf{원하는 거동을 만들기 위해 입력을 어떻게 설계하는가(제어, Control)}이다.
+
+    본 서적은 학부 자동제어 교과의 범위를 넘어, 제어이론이라는 학문 전체의 구조를 조망하는 개론서로 기획되었다. 개별 기법의 나열이 아니라 학문의 지도를 그리는 것, 즉 각 이론이 어떤 질문에 대한 답이며 서로 어떻게 연결되는지를 하나의 완결된 틀 안에서 이해할 수 있게 하는 것을 목표로 한다. 본 서적은 Control Theory Series의 제1권이며, 이후의 각 권은 이 책이 조망한 영역을 하나씩 깊이 있게 전개한다.
+
+    \section*{서적의 철학과 구성 방향}
+        본 서적의 체계는 위의 네 기둥 — 모델링, 해석, 추정, 제어 — 을 축으로 독자적으로 구성하였으며, 본서의 파트 구조는 시리즈 전체의 구성과 동형을 이룬다. 따라서 이 책의 목차는 그 자체로 시리즈 전체의 지도가 된다.
+
+        \begin{itemize}[leftmargin=*]
+            \item \textbf{학문의 구조 우선 (Structure-First):} 모든 주제는 그것이 답하는 질문으로부터 출발한다. 각 이론이 제어이론의 전체 구조에서 차지하는 위치를 먼저 밝히고, 그 위에서 내용을 전개한다.
+            \item \textbf{개념적 동기 우선:} 모든 개념은 수학적 전개에 앞서 명확한 문제의식에서 출발한다. 왜 피드백이 필요한지, 왜 상태를 추정해야 하는지를 먼저 묻고 답한다.
+            \item \textbf{일관된 구성 체계:} 본문은 \textit{시스템의 표현(모델링) $\rightarrow$ 거동의 이해(해석) $\rightarrow$ 입력의 설계(제어) $\rightarrow$ 모델과 상태의 추정} 순으로 전개되며, 심화 주제는 \textit{동기 $\rightarrow$ 핵심 개념 $\rightarrow$ 대표 기법 $\rightarrow$ 응용 $\rightarrow$ 더 읽을거리}의 통일된 서베이 형식을 따른다.
+            \item \textbf{범위의 명시:} 본 서적은 연속시간 시스템을 중심으로 서술한다. 이산시간 및 하이브리드 시스템은 개념적으로만 소개하며, 리아푸노프 안정성을 포함한 각 심화 이론의 본격적인 전개는 해당 권으로 미룬다.
+        \end{itemize}
+
+    \section*{본서의 구성}
+        전체 내용은 총 6개의 파트로 구성되어 있다.
+
+        \begin{description}
+            \item[Part I --- Introduction:] 제어이론의 정의와 역사, 학문의 구조, 그리고 시리즈 전체의 로드맵을 제시한다.
+            \item[Part II --- System Theory for Modeling:] 동적 시스템의 수학적 모델링과 시스템의 분류 및 성질을 다룬다.
+            \item[Part III --- System Theory for Analysis:] 시간영역, 주파수영역, 상태공간 해석과 안정성 이론을 다룬다.
+            \item[Part IV --- Control Theory:] 피드백 이론, 고전 제어기, 그리고 제어기 설계를 다룬다.
+            \item[Part V --- Estimation Theory:] 모델 추정(시스템 식별과 교정), 결정론적 및 확률론적 상태 추정을 다룬다.
+            \item[Part VI --- Advanced Topics:] 비선형 시스템과 제어, 심화 제어 기법, 고장 진단 및 고장 허용 제어를 서베이 형식으로 조망하며, 이후 권들의 예고편 역할을 한다.
+        \end{description}
+
+    \section*{맺음말}
+        본 서적은 개인적 연구와 학습을 위해 작성되었다. 시스템을 표현하고, 이해하고, 추정하고, 제어하는 이 네 가지 질문의 틀이 이후 시리즈 전체를 관통하는 견고한 토대가 되기를 기대한다.
+
+    \vspace{1.5em}
+
+    \begin{flushright}
+        \textit{2026.07.26}\\
+        \textbf{정범준}
+    \end{flushright}

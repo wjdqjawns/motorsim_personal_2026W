@@ -1,0 +1,47 @@
+# Synthetic end-to-end identification study ("pseudo-real" data from a hidden true motor).
+# Run:  python run.py demo -c config/demo_dc.yaml
+name: demo_dc
+
+motor:                        # <- the TRUE (hidden) motor
+  type: dc
+  params: {R: 1.15, L: 0.62e-3, Kt: 0.046, J: 2.4e-5}
+  limits: {v_max: 24.0, i_max: 5.0}
+
+friction:                     # <- the TRUE friction (try lugre / stribeck / coulomb_viscous)
+  model: lugre
+  params: {B: 1.5e-5, Tc: 6.0e-3, Tst: 9.0e-3, ws: 4.0, sigma0: 50.0, sigma1: 0.05}
+
+control:
+  mode: speed
+  Ts: 1.0e-4
+  bandwidth_hz: {current: 500, speed: 30, position: 5}
+  nominal: {R: 1.0, L: 0.5e-3, Kt: 0.05, J: 2.0e-5}   # datasheet values the drive is tuned with
+
+sensors: {current_noise: 0.01, encoder_cpr: 65536, speed_lpf_hz: 300}
+sim: {duration: 2.0, substeps: 4, seed: 1}
+
+experiments:
+  identification:             # rich excitation: random speed steps (incl. reversals) + multisine
+    duration: 2.0
+    reference:
+      - {type: random_steps, low: -150, high: 150, dwell: [0.05, 0.2]}
+      - {type: multisine, amplitude: 30, f_min: 1, f_max: 200, n: 25}
+  validation:                 # different signal, different seed
+    duration: 1.0
+    seed: 7
+    reference:
+      - {type: triangle, amplitude: 120, freq: 2}
+      - {type: sine, amplitude: 20, freq: 37}
+  friction_map:               # constant-speed staircase
+    speeds: {min: 0.5, max: 200, n: 14, both_directions: true}
+    hold: 0.3
+
+identification:
+  friction_models: [viscous, coulomb, coulomb_viscous, stribeck]
+  offset: false
+  oe:
+    enabled: true
+    duration: 0.6             # seconds of the identification record used for OE
+    max_nfev: 15
+    decimate: 2
+    # friction_model: lugre   # force OE to fit a dynamic model (adds sigma0, sigma1)

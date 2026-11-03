@@ -1,0 +1,36 @@
+# Template for REAL measured data. Copy it, then fill in motor type, nominal values and the column mapping.
+#   python run.py identify -c config/real_template.yaml --data data/id_run.csv --val data/val_run.csv
+#   python run.py validate -c config/real_template.yaml -p export/<run>/identified_params.yaml --data data/val_run.csv
+#   python run.py friction-map -c config/real_template.yaml --data data/speed_staircase.csv
+name: real_motor
+
+motor:
+  type: dc                   # dc | pmsm
+  params: {R: 1.0, L: 0.5e-3, Kt: 0.05, J: 2.0e-5}   # datasheet values = initial guess / nominal
+  limits: {v_max: 24.0, i_max: 5.0}
+
+friction:
+  model: coulomb_viscous     # model used for replay when no identified model is given
+
+control:
+  Ts: 1.0e-4                 # logging period after resampling
+
+measurement:
+  # file: data/id_run.csv    # or pass --data on the command line
+  sep: ","
+  columns:                   # standard key: csv column   (PMSM: vd, vq, id, iq instead of v, i)
+    t: time
+    v: voltage               # APPLIED terminal voltage (duty x Vbus), not the pre-saturation command
+    i: current
+    theta: position          # encoder angle; speed is derived from it (zero-phase)
+    ref: reference           # needed for friction-map staircase segmentation
+  scale:                     # SI = raw * scale + offset
+    t: 1.0                   # e.g. 1.0e-3 if time is in ms
+    theta: 1.0               # e.g. 2*pi/CPR = 9.5874e-5 for counts of a 65536-CPR encoder
+  offset: {}
+  resample: true
+
+identification:
+  friction_models: [viscous, coulomb, coulomb_viscous, stribeck]
+  ls: {delay: 0}             # samples between the voltage command and its effect (PWM update delay)
+  oe: {enabled: true, duration: 0.6, max_nfev: 15, decimate: 2}

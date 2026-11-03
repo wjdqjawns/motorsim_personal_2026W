@@ -1,0 +1,41 @@
+# Synthetic identification study for a PMSM.  python run.py demo -c config/demo_pmsm.yaml
+name: demo_pmsm
+
+motor:
+  type: pmsm
+  params: {R: 0.55, Ld: 0.85e-3, Lq: 1.25e-3, psi: 0.0105, p: 4, J: 3.2e-5}
+  limits: {v_dc: 24.0, i_max: 10.0}
+
+friction:
+  model: stribeck
+  params: {B: 2.0e-5, Tc: 8.0e-3, Tst: 1.2e-2, ws: 3.0}
+
+control:
+  mode: speed
+  Ts: 1.0e-4
+  bandwidth_hz: {current: 500, speed: 30, position: 5}
+  nominal: {R: 0.5, Ld: 1.0e-3, Lq: 1.0e-3, psi: 0.01, p: 4, J: 3.0e-5}
+
+sensors: {current_noise: 0.02, encoder_cpr: 65536, speed_lpf_hz: 300}
+sim: {duration: 2.0, substeps: 4, seed: 1}
+
+experiments:
+  identification:
+    duration: 2.0
+    reference:
+      - {type: random_steps, low: -150, high: 150, dwell: [0.05, 0.2]}
+      - {type: multisine, amplitude: 30, f_min: 1, f_max: 200, n: 25}
+    reference_d: {type: prbs, amplitude: 2.0, dwell: 0.004}   # id injection makes Ld observable
+  validation:
+    duration: 1.0
+    seed: 7
+    reference:
+      - {type: triangle, amplitude: 120, freq: 2}
+      - {type: sine, amplitude: 20, freq: 37}
+  friction_map:
+    speeds: {min: 0.5, max: 200, n: 14}
+    hold: 0.3
+
+identification:
+  friction_models: [viscous, coulomb, coulomb_viscous, stribeck]
+  oe: {enabled: true, duration: 0.6, max_nfev: 15, decimate: 2}

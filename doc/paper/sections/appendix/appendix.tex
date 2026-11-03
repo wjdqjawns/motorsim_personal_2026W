@@ -1,0 +1,131 @@
+﻿\chapter{Mass Moments of Inertia} \label{ch:mass_moments_of_inertia}
+    \section{Mass Moments of Inertia about an Axis} \label{sec:moi_about_axis}
+        \textbf{정의}:
+            축 $O$--$O$에 대한 질량 관성모멘트는
+  
+            \begin{equation}
+                I = \int r^2\,dm = \sum r_i^2 m_i
+            \end{equation}
+    
+            ($r$: 축까지의 수직거리).
+  
+            질량 $m$이 병진 가속에 대한 저항의 척도이듯, $I$는 해당 축에 대한 회전 가속에 대한 저항의 척도다. 항상 양수이며 차원은 (질량)(거리)$^2$, 단위는 $\mathrm{kg\cdot m^2}$ (US: $\mathrm{lb\text{-}ft\text{-}sec^2}$). 밀도 $\rho$가 일정하면 $I = \rho\int r^2\,dV$로 순수 기하량이 된다. 적분 시에는 물체 경계에 맞는 좌표계와 가능한 낮은 차수의 체적 요소를 택한다(예: 원판 슬라이스, 원통 셸).
+
+        \textbf{3차원 표기}:
+            3차원 회전에서는 관성곱과의 표기 대칭을 위해 이중 첨자를 쓴다:
+  
+            \begin{equation}
+                I_{xx} = \int (y^2+z^2)\,dm, \qquad
+                I_{yy} = \int (z^2+x^2)\,dm, \qquad
+                I_{zz} = \int (x^2+y^2)\,dm
+            \end{equation}
+    
+            평면 운동처럼 회전축이 하나뿐이면 단일 첨자($I_O$, $\bar I$)로 충분하다.
+
+        \textbf{회전반경(radius of gyration)}:
+  
+            \begin{equation}
+                I = k^2 m, \qquad k = \sqrt{I/m}
+            \end{equation}
+    
+            전체 질량이 축에서 거리 $k$에 집중되어 있다고 볼 때의 등가 거리. 물체의 $I$는 흔히 $m$과 $k$로 주어진다.
+
+        \textbf{평행축 정리(transfer of axes)}:
+            질량중심 $G$를 지나는 축에 대한 $\bar I$를 알면, 거리 $d$만큼 떨어진 평행축에 대해
+        
+            \begin{equation}
+                I = \bar{I} + md^2, \qquad k^2 = \bar{k}^2 + d^2
+            \end{equation}
+  
+            두 축이 평행하고 한 축이 반드시 질량중심을 지나야만 적용된다. (임의의 두 평행축 사이 직접 이동은 불가 --- $G$축을 경유해야 함.)
+
+        \textbf{평판(flat plate)}:
+            두께 $t$가 일정하고 얇은 평판에서는 질량 관성모멘트가 면적 관성모멘트에 $\rho t$를 곱한 값이 되어, 얇은 평판 극한에서
+  
+            \begin{equation}
+                I_{zz} = I_{xx} + I_{yy}
+            \end{equation}
+    
+            (판면 내 두 축에 대한 관성모멘트의 합 = 판에 수직인 축에 대한 관성모멘트)가 성립한다. 이 관계는 얇은 평판에서만 유효하다.
+
+        \textbf{조합체(composite bodies)}:
+            여러 단순 형상의 조합으로 볼 수 있는 물체의 관성모멘트는, 같은 축에 대한 각 부분의 관성모멘트의 합이다 (구멍은 음의 질량으로 처리). 각 부분에는 필요 시 평행축 정리를 적용해 공통 축으로 이동시킨 뒤 합산한다.
+
+    \section{Products of Inertia} \label{sec:products_of_inertia}
+        \textbf{정의}:
+            3차원 회전의 각운동량 표현에는 관성모멘트 외에 관성곱이 나타난다:
+  
+            \begin{equation}
+                I_{xy} = I_{yx} = \int xy\,dm, \qquad
+                I_{xz} = I_{zx} = \int xz\,dm, \qquad
+                I_{yz} = I_{zy} = \int yz\,dm
+            \end{equation}
+
+            관성모멘트와 달리 관성곱은 \textbf{양수, 음수, 0 모두 가능}하므로 부호에 특히 주의해야 한다. 물체가 어떤 좌표평면에 대해 대칭이면 그 평면의 두 좌표를 포함하는 관성곱은 0이다.
+
+        \textbf{관성곱의 평행축 정리}:
+            질량중심을 지나는 평행축계 $x_0$--$y_0$--$z_0$에 대한 값에서
+
+            \begin{equation}
+                I_{xy} = \bar{I}_{xy} + m\,d_x d_y, \qquad
+                I_{xz} = \bar{I}_{xz} + m\,d_x d_z, \qquad
+                I_{yz} = \bar{I}_{yz} + m\,d_y d_z
+            \end{equation}
+
+            ($d_x, d_y, d_z$: 축 사이 거리 성분, 부호 포함).
+
+            역시 질량중심 축을 경유할 때만 유효하다.
+
+        \textbf{임의 축에 대한 관성모멘트}:
+            원점을 지나고 방향여현이 $(l, m, n)$인 축 $O$--$M$에 대해
+
+            \begin{equation}
+                I_M = I_{xx}l^2 + I_{yy}m^2 + I_{zz}n^2
+                - 2I_{xy}lm - 2I_{xz}ln - 2I_{yz}mn
+            \end{equation}
+    
+            즉 한 원점에 대한 관성모멘트 3개와 관성곱 3개를 알면, 그 원점을 지나는 \emph{모든} 축에 대한 관성모멘트가 결정된다.
+
+        \textbf{관성행렬(inertia matrix / inertia tensor)}:
+            위 여섯 값을 묶은 배열
+        
+            \begin{equation}
+                \mathbf{I} =
+                \begin{bmatrix}
+                    I_{xx} & -I_{xy} & -I_{xz} \\
+                    -I_{yx} & I_{yy} & -I_{yz} \\
+                    -I_{zx} & -I_{zy} & I_{zz}
+                \end{bmatrix}
+            \end{equation}
+
+            가 관성행렬이며, 각운동량은 $\mathbf{H} = \mathbf{I}\boldsymbol{\omega}$ (성분식은 Eq.~7/11--7/12)로 계산된다. 대칭 행렬이고, 비대각 성분이 $-I_{xy}$ 등 \textbf{관성곱에 음부호를 붙인 값}이라는 점이 핵심이다.
+
+        \textbf{주관성축(principal axes of inertia)}:
+            주어진 원점에 대해 축의 방향을 바꾸면 여섯 값이 모두 변하며, 관성곱이 전부 0이 되어 행렬이 대각화되는 방향이 항상 존재한다. 이 축이 주축, 대각 성분 $I_1, I_2, I_3$가 주관성모멘트이고, 해당 원점에 대한 관성모멘트의 최대·최소·중간값이다. 주관성모멘트는 고유값 문제
+    
+            \begin{equation}
+                \begin{vmatrix}
+                    I_{xx} - I & -I_{xy} & -I_{xz} \\
+                    -I_{yx} & I_{yy} - I & -I_{yz} \\
+                    -I_{zx} & -I_{zy} & I_{zz} - I
+                \end{vmatrix} = 0
+            \end{equation}
+        
+            의 세 근 $I_1, I_2, I_3$로 주어지고, 각 근을
+            
+            \begin{equation}
+                (I_{xx} - I)l - I_{xy}m - I_{xz}n = 0, \quad
+                -I_{yx}l + (I_{yy} - I)m - I_{yz}n = 0, \quad
+                l^2 + m^2 + n^2 = 1
+            \end{equation}
+    
+            에 대입해 풀면 대응하는 주축의 방향여현 $(l, m, n)$을 얻는다. 세 주축은 항상 서로 수직이다.
+
+    \section*{실무 참고: CAD 출력 관성값의 사용}
+        CAD 소프트웨어의 질량 특성(mass properties) 출력은 보통 $I_{xx}, I_{yy}, I_{zz}, I_{xy}, I_{xz}, I_{yz}$ 여섯 값 또는 $3\times3$ 관성행렬 형태이며, 다음을 확인한 뒤 사용해야 한다.
+  
+        \begin{itemize}
+            \item \textbf{기준 원점과 좌표계}: 출력이 질량중심 기준인지 모델(전역) 원점 기준인지 확인한다. 다른 점 기준의 값이 필요하면 평행축 정리(관성모멘트: $I = \bar I + md^2$, 관성곱: $I_{xy} = \bar I_{xy} + m d_x d_y$)로 이동시키되, 반드시 질량중심 축을 경유한다.
+            \item \textbf{부호 규약}: 소프트웨어가 출력하는 값이 관성곱 $I_{xy} = \int xy\,dm$ 자체인지, 텐서의 비대각 성분 $-I_{xy}$인지 규약이 제품마다 다르다. 대칭 형상으로 부호를 검증하거나 문서의 정의를 확인한 뒤, $\mathbf{H} = \mathbf{I}\boldsymbol{\omega}$나 Euler 방정식에 대입할 때는 위의 관성행렬 형태(비대각 $= -I_{xy}$)로 정리한다.
+            \item \textbf{적용}: 동역학 해석(7장)에는 물체 고정축 기준 값이 필요하다. CAD가 주는 주관성모멘트와 주축 방향을 쓰면 Euler 방정식을 가장 단순한 형태로 사용할 수 있고, 임의 축에 대한 관성모멘트는 $I_M$ 식으로 직접 계산한다.
+        \end{itemize}

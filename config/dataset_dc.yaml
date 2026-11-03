@@ -1,0 +1,39 @@
+# Randomized-parameter dataset for learning-based identification.
+#   python run.py dataset -c config/dataset_dc.yaml
+#   python run.py train -d export/dataset_dataset_dc.npz
+name: dataset_dc
+
+motor:
+  type: dc
+  params: {R: 1.0, L: 0.5e-3, Kt: 0.05, J: 2.0e-5}       # nominal = centre of the distribution
+  limits: {v_max: 24.0, i_max: 5.0}
+
+friction:
+  model: stribeck
+  params: {B: 1.0e-5, Tc: 5.0e-3, Tst: 8.0e-3, ws: 5.0}
+
+control:
+  mode: speed                # the controller always uses the nominal values above
+  Ts: 1.0e-4
+  bandwidth_hz: {current: 500, speed: 30, position: 5}
+
+reference:                   # random per sample (new phases / levels for every experiment)
+  - {type: random_steps, low: -150, high: 150, dwell: [0.03, 0.1]}
+  - {type: multisine, amplitude: 30, f_min: 2, f_max: 200, n: 20}
+
+sensors: {current_noise: 0.01, encoder_cpr: 65536, speed_lpf_hz: 300}
+sim: {duration: 0.3, substeps: 2, seed: 0}
+
+randomize:                   # factor on nominal, log-uniform (Ke follows Kt)
+  R:   [0.6, 1.6]
+  L:   [0.6, 1.6]
+  Kt:  [0.7, 1.4]
+  J:   [0.5, 2.0]
+  B:   [0.3, 3.0]
+  Tc:  [0.3, 3.0]
+
+dataset:
+  n: 3000
+  batch: 250
+  decimate: 1
+  channels: [v, i_meas, w_enc]   # w_enc = speed from the encoder angle

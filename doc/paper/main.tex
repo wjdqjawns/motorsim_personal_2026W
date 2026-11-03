@@ -1,0 +1,97 @@
+% =================================================================
+% File Name: main.tex
+% Document Type: Report (보고서형, 선택적 Part / Section 구조)
+%
+% 페이지 순서:
+%   표지 → Revision Table → 빈 페이지 →
+%   Abstract → 빈 페이지 →
+%   TOC → List of Figures → List of Tables → 빈 페이지 →
+%   [(\reportpart{...} →) Chapter × N → 빈 페이지] →
+%   Appendix → References
+% =================================================================
+
+\documentclass[a4paper, 11pt]{report}
+
+\makeatletter
+\def\input@path{
+    {asset/}%
+    {bibliography/}%
+    {figures/}%
+    {packages/}%
+    {sections/}%
+    {sections/appendix/}%
+    {sections/chapter/}%
+}
+\makeatother
+
+\usepackage{packages/report_general}
+\usepackage{packages/report_formatting}
+
+% ── 우측 헤더에 표시할 짧은 제목 ────────────────────────
+\reportshort{Motor Simulation}
+
+\begin{document}
+  \input{titlepage.tex}
+  \clearpage
+
+  % ── Revision History ───────────────────────────────────
+  \markboth{Revision History}{Revision History}
+  \input{revision.tex}
+  \clearpage
+
+  % ── Preface ───────────────────────────────────────────
+  \markboth{Preface}{Preface}
+  \input{preface.tex}
+  \clearpage
+
+  % ── Table of Contents / List of Figures / Tables ───────
+  \markboth{Contents}{Contents}
+  \applyGlobalTocStyle
+  \tableofcontents
+  \clearpage
+  \reportlists
+  \clearpage
+
+  % ── Chapters ───────────────────────────────────────────
+  \reportpart{Introduction}
+  \input{chapter_01.tex} % Introduction to control theory
+
+  \reportpart{System Theory for Modeling}
+  \input{chapter_02.tex} % Mathematical Modeling
+  \input{chapter_03.tex} % System Classification and Properties
+  
+  \reportpart{System Theory for Analysis}
+  \input{chapter_04.tex} % Time Domain Analysis
+  \input{chapter_05.tex} % Frequency-Domain Analysis
+  \input{chapter_06.tex} % State-Space Analysis
+  \input{chapter_07.tex} % Stability Theory
+  
+  \reportpart{Control Theory}
+  \input{chapter_08.tex} % Feedback Theory
+  \input{chapter_09.tex} % Classical Controllers
+  \input{chapter_10.tex} % Controller Design
+
+  \reportpart{Estimation Theory}
+  \input{chapter_11.tex} % Model Estimation: System Identification and Calibration
+  \input{chapter_12.tex} % State Estimation: Deterministic
+  \input{chapter_13.tex} % State Estimation: Stochastic
+
+  \reportpart{Advanced Topics}
+  \input{chapter_14.tex} % Nonlinear Systems and Control
+  \input{chapter_15.tex} % Advanced Control Methods - optimal, robust, adaptive, predictive control
+  \input{chapter_16.tex} % Learning-Based Control
+  \input{chapter_17.tex} % Fault Diagnosis and Fault-Tolerant Control
+
+  % ── Appendix ───────────────────────────────────────────
+  \appendixdivider
+  \input{appendix.tex}
+  \clearpage
+
+  % ── References ─────────────────────────────────────────
+  \markboth{References}{References}
+  \bibliographystyle{plain}
+  \bibliography{bibliography/reference}
+  \clearpage
+
+  \input{endpage.tex}
+\end{document}

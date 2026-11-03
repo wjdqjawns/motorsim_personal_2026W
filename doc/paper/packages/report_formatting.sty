@@ -1,0 +1,346 @@
+\ProvidesPackage{packages/report_formatting}
+
+% ══════════════════════════════════════════════════════════
+%  REPORT FORMATTING — 포트폴리오와 일관된 스타일
+% ══════════════════════════════════════════════════════════
+
+% ── 색상 ──────────────────────────────────────────────────
+\definecolor{accentColor}  {HTML}{1D3557}
+\definecolor{accentLight}  {HTML}{457B9D}
+\definecolor{ruleLine}     {HTML}{CCCCCC}
+\definecolor{summaryBg}    {HTML}{EBF4FA}
+\definecolor{linkcolour}   {rgb}{0, 0.2, 0.6}
+\definecolor{tagBg}        {HTML}{E8F0FE}
+\definecolor{tagFg}        {HTML}{1A3A6B}
+
+\AtBeginDocument{%
+  \hypersetup{urlcolor=linkcolour, linkcolor=accentColor, citecolor=accentColor}%
+}
+
+% ── 그래픽 / 캡션 ──────────────────────────────────────
+\graphicspath{{figures/}{./figures/}{asset/}{./asset/}}
+\captionsetup{font=small, labelfont=bf, skip=5pt}
+
+% ── 수식 번호 ─────────────────────────────────────────────
+\numberwithin{equation}{chapter}
+
+% ══════════════════════════════════════════════════════════
+%  Part 타이틀 스타일  (선택적 사용)
+% ══════════════════════════════════════════════════════════
+% ──part 스타일 ────────────────────────────────────────
+\titleformat{\part}[display]
+  {\normalfont\centering}
+  {\large\scshape\color{accentLight} Part \thepart}
+  {12pt}
+  {\Huge\bfseries\color{accentColor}}
+  [\vspace{8pt}\textcolor{accentColor}{\rule{0.35\linewidth}{2.5pt}}]
+\titlespacing{\part}{0pt}{3cm}{0pt}
+
+% ──chapter 스타일 ────────────────────────────────────────
+\titleformat{\chapter}[display]
+  {\normalfont}
+  {\large\scshape\color{accentLight} Chapter \thechapter}
+  {5pt}
+  {\Huge\bfseries\color{accentColor}}
+  [\vspace{8pt}\textcolor{accentColor}{\rule{0.35\linewidth}{2.5pt}}]
+\titlespacing*{\chapter}{0pt}{2.8cm}{1.2cm}
+
+% ── Section 스타일 ────────────────────────────────────────
+\titleformat{\section}
+  {\large\bfseries\color{accentColor}}
+  {\thesection.}{8pt}{}
+  [\vspace{3pt}\textcolor{ruleLine}{\rule{\linewidth}{1pt}}]
+\titlespacing{\section}{0pt}{18pt}{8pt}
+
+% ── Subsection 스타일 ─────────────────────────────────────
+\titleformat{\subsection}
+  {\normalsize\bfseries}
+  {\thesubsection.}{6pt}{}
+\titlespacing{\subsection}{0pt}{10pt}{4pt}
+
+\titleformat{\subsubsection}
+  {\normalsize\itshape}
+  {\thesubsubsection.}{5pt}{}
+\titlespacing{\subsubsection}{0pt}{8pt}{3pt}
+
+% ══════════════════════════════════════════════════════════
+%  헤더/푸터
+%  main.tex 에서 \reportshort{짧은제목} 으로 우측 헤더 설정
+% ══════════════════════════════════════════════════════════
+\def\@reportshort{Report}
+\newcommand{\reportshort}[1]{\gdef\@reportshort{#1}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{gray}\nouppercase{\leftmark}}
+\fancyhead[R]{\small\color{gray}\@reportshort}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\small\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+% ══════════════════════════════════════════════════════════
+%  빈 페이지 스타일
+% ══════════════════════════════════════════════════════════
+\fancypagestyle{blankpagestyle}{%
+  \fancyhf{}%
+  \fancyhead[R]{\small\color{gray}\@reportshort}%
+  \fancyfoot[C]{\small\thepage}%
+  \renewcommand{\headrulewidth}{0.4pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
+
+\newcommand{\blankpage}{%
+  \clearpage
+  \thispagestyle{blankpagestyle}%
+  \vspace*{\fill}
+  {\centering\small\color{gray}\textit{This page intentionally left blank.}\par}%
+  \vspace*{\fill}
+  \clearpage
+}
+
+% ══════════════════════════════════════════════════════════
+%  전체 TOC 스타일 (etoc 기반)
+%  main.tex 의 \tableofcontents 직전에 호출
+% ══════════════════════════════════════════════════════════
+\newcommand{\reportlisttitle}[1]{%
+  {\Large\bfseries\color{accentColor}#1\par}
+  \vspace{2pt}
+  \noindent\textcolor{ruleLine}{\rule{\linewidth}{1pt}}
+  \par\vspace{4pt}
+}
+
+\newcommand{\applyGlobalTocStyle}{%
+  \setcounter{tocdepth}{2}%
+  \etocsettocstyle{%
+    \reportlisttitle{\contentsname}%
+  }{%
+    \par\vspace{4pt}%
+    \noindent\textcolor{ruleLine}{\rule{\linewidth}{0.5pt}}%
+  }%
+  % part 스타일: 번호 있고 비어있지 않을 때만 "Chapter X" 표시
+  \etocsetstyle{part}
+  {\addvspace{2.5em}}
+  {}
+  {%
+    {\Large\bfseries\color{accentColor}
+    Part~\etocnumber
+    \quad
+    \etocname
+    \hfill
+    \etocpage\par}
+    \vspace{0.5em}
+    \normalsize
+  }
+  {}
+  % chapter 스타일: 번호 있고 비어있지 않을 때만 "Chapter X" 표시 Chapter~
+  \etocsetstyle{chapter}
+    {}
+    {}
+    {%
+      \hspace{1.5em}
+      \bfseries
+      \color{accentLight}
+      \etocnumber
+      \quad
+      \etocname
+      \dotfill
+      \etocpage
+      \par
+    }
+    {}
+  \etocsetstyle{section}
+    {}
+    {}
+    {%
+      \hspace{4em}
+      \small
+      {\color{gray}\etocnumber}\hspace{1em}%
+      \etocname
+      \dotfill
+      \etocpage
+      \par
+    }
+    {\addvspace{1em}}
+  \etocsetstyle{subsection}{}{}{}{}
+  \etocsetstyle{subsubsection}{}{}{}{}
+}
+
+\newcommand{\applyLocalTocStyle}{%
+  \etocsettocstyle{}{}%
+  \etocsetstyle{chapter}
+    {}
+    {
+      \small\textcolor{accentLight}{\etocnumber}\enspace%
+      \etocname\hfill\textcolor{gray}{\small\etocpage}%
+      \par\addvspace{6pt}
+     }
+    {}
+     {}%
+  \etocsetstyle{section}{}{}{}{}
+  \etocsetstyle{subsection}{}{}{}{}
+}
+
+\newcommand{\reportlists}{%
+  \clearpage
+
+  % ---------- List of Figures and Tables ----------
+  \begingroup
+    \let\clearpage\relax
+    \let\cleardoublepage\relax
+
+    \makeatletter
+    \def\@makechapterhead##1{}
+    \def\@makeschapterhead##1{}
+    \renewcommand{\chapter}{\@ifstar{\@contentsonly}{\@contentsonly}}
+    \newcommand{\@contentsonly}[1]{}
+    \makeatother
+
+    \renewcommand{\listfigurename}{}
+    \reportlisttitle{List of Figures}
+    \listoffigures
+
+    \vspace{2.5em}
+
+    \renewcommand{\listtablename}{}
+    \reportlisttitle{List of Tables}
+    \listoftables
+  \endgroup
+
+  \clearpage
+}
+
+% ══════════════════════════════════════════════════════════
+%  선택적 Part 구분 페이지  (로컬 TOC 없는 단순 버전)
+% ══════════════════════════════════════════════════════════
+\newcommand{\reportpart}[1]{%
+  \clearpage
+  \thispagestyle{plain}%
+  \part{#1}%
+  \clearpage
+}
+
+% ══════════════════════════════════════════════════════════
+%  Abstract 환경
+% ══════════════════════════════════════════════════════════
+\renewenvironment{abstract}{%
+  \vspace*{1cm}%
+  {\noindent\Large\bfseries\color{accentColor} Abstract}%
+  \par\vspace{6pt}%
+  \noindent\textcolor{ruleLine}{\rule{\linewidth}{1pt}}%
+  \par\vspace{10pt}%
+  \begin{center}
+    \begin{minipage}{0.88\textwidth}
+      \normalsize
+}{%
+    \end{minipage}
+  \end{center}
+  \vspace{1em}%
+}
+
+\newenvironment{keywords}{%
+  \begin{center}
+    \begin{minipage}{0.88\textwidth}
+      \noindent\textbf{\color{accentColor} Keywords:}\enspace\normalsize
+}{%
+    \end{minipage}
+  \end{center}
+  \vspace{1em}%
+}
+
+% ══════════════════════════════════════════════════════════
+%  Appendix
+%  \appendixdivider 한 번 호출로 구분 페이지 + 로컬 TOC + 카운터 설정
+% ══════════════════════════════════════════════════════════
+\newcommand{\appendixformat}{%
+  \titleformat{\section}
+    {\large\bfseries\color{accentColor}}
+    {\thesection.}{8pt}{}
+    [\vspace{3pt}\textcolor{ruleLine}{\rule{\linewidth}{1pt}}]%
+  \titlespacing{\section}{0pt}{18pt}{8pt}%
+}
+
+\newcommand{\appendixdivider}{%
+  \clearpage
+  \appendix
+  \appendixformat
+  % \thepart 를 빈 문자로 설정해 "Part I" 표시 제거
+  % (numbered \part 를 써야 etoc 로컬 scope 가 확실히 생성됨)
+  \renewcommand{\thepart}{}%
+  % part titleformat 을 Appendix 용으로 전환 (이후 \part 없으므로 복원 불필요)
+  \titleformat{\part}[display]
+    {\normalfont\centering}
+    {\large\scshape\color{accentLight} Supplementary}
+    {12pt}
+    {\Huge\bfseries\color{accentColor}}
+    [\vspace{8pt}\textcolor{accentColor}{\rule{0.35\linewidth}{2.5pt}}]
+  \thispagestyle{plain}%
+  \part{Appendix}%
+  \vspace{1.5cm}%
+  \begin{center}
+    \begin{minipage}{0.62\linewidth}
+      \centering
+      \applyLocalTocStyle
+      \etocsetnexttocdepth{1}%
+      \localtableofcontents
+    \end{minipage}
+  \end{center}%
+  \clearpage
+}
+
+% ══════════════════════════════════════════════════════════
+%  커스텀 환경
+% ══════════════════════════════════════════════════════════
+
+% ── 요약 박스 ─────────────────────────────────────────────
+\newtcolorbox{summarybox}{
+  enhanced,
+  colback=summaryBg,
+  colframe=accentLight,
+  boxrule=0.8pt,
+  arc=4pt,
+  left=10pt, right=10pt, top=7pt, bottom=7pt,
+  fontupper=\small,
+  breakable
+}
+
+% ── 기술 태그 ─────────────────────────────────────────────
+\newcommand{\techtag}[1]{%
+  \tcbox[
+    on line,
+    colback=tagBg, colframe=tagBg,
+    arc=3pt, boxrule=0pt,
+    left=4pt, right=4pt, top=2pt, bottom=2pt,
+    fontupper=\footnotesize\color{tagFg}\bfseries
+  ]{#1}\hspace{3pt}%
+}
+
+% ── 유틸리티 ─────────────────────────────────────────────
+\newcommand{\figref}[1]{Fig.~\ref{#1}}
+\newcommand{\tabref}[1]{Table~\ref{#1}}
+\newcommand{\eqnref}[1]{Eq.~(\ref{#1})}
+\newcommand{\secref}[1]{Section~\ref{#1}}
+\newcommand{\chapterref}[1]{Chapter~\ref{#1}}
+
+\newcommand{\figrefko}[1]{그림.~\ref{#1}}
+\newcommand{\tabrefko}[1]{표.~\ref{#1}}
+\newcommand{\eqnrefko}[1]{식.~(\ref{#1})}
+\newcommand{\secrefko}[1]{절.~\ref{#1}}
+
+% ── 수학 표기 매크로 ─────────────────────────────────────
+\newcommand{\tensor}[1]{\mathcal{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\frobn}[1]{\|{#1}\|_F}
+\newcommand{\onenorm}[1]{\left\|{#1}\right\|_1}
+\newcommand{\unfold}[2]{#1_{(#2)}}
+\newcommand{\kron}{\otimes}
+\newcommand{\R}{\mathbb{R}}
+
+% ── 저자 ─────────────────────────────
+\newcommand{\cbj}[1]{\textcolor{red}{#1}}

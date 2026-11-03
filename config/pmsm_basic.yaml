@@ -1,0 +1,28 @@
+# PMSM field-oriented control (average inverter model, dq frame).
+# Run:  python run.py simulate -c config/pmsm_basic.yaml
+name: pmsm_basic
+
+motor:
+  type: pmsm
+  params: {R: 0.5, Ld: 0.8e-3, Lq: 1.2e-3, psi: 0.01, p: 4, J: 3.0e-5}
+  limits: {v_dc: 24.0, i_max: 10.0}
+
+friction:
+  model: lugre
+  params: {B: 2.0e-5, Tc: 8.0e-3, Tst: 1.2e-2, ws: 3.0, sigma0: 80.0, sigma1: 0.05}
+
+load:
+  torque: 0.0
+  cogging: {amplitude: 2.0e-3, periods: 24, phase: 0.0}   # 24 cogging periods per rev
+
+control:
+  mode: speed
+  Ts: 1.0e-4
+  bandwidth_hz: {current: 500, speed: 30, position: 5}
+
+reference:
+  - {type: steps, values: [0, 150, -150, 5, 0], duration: 0.1}
+reference_d: null            # id* = 0 ; e.g. {type: prbs, amplitude: 1.0, dwell: 0.005}
+
+sensors: {current_noise: 0.02, encoder_cpr: 65536, speed_lpf_hz: 300}
+sim: {duration: 0.5, substeps: 4, seed: 0}
