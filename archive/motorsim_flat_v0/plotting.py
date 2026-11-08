@@ -34,6 +34,7 @@ def plot_sim(res, path, idx: int = 0):
             ("torque [Nm]", [("Te", "electromagnetic"), ("Tf", "friction")]),
             ("position [rad]", [("theta", "theta")] + ([("ref", "reference")] if mode == "position" else []))]
     fig, axs = plt.subplots(len(rows), 1, figsize=(9, 9), sharex=True)
+
     for ax, (ylabel, series) in zip(axs, rows):
         for j, (k, lab) in enumerate(series):
             if k in d:
@@ -41,19 +42,21 @@ def plot_sim(res, path, idx: int = 0):
         ax.set_ylabel(ylabel)
         if len(series) > 1:
             ax.legend(loc="upper right", ncol=len(series))
+
     axs[-1].set_xlabel("time [s]")
     axs[0].set_title(f"{res.config.get('name', '')} | {res.config.get('motor', {}).get('type', '')} | mode={mode}")
     return _save(fig, path)
 
-
 def plot_overlay(t, pairs: dict, path, title="", labels=("measured", "model")):
     fig, axs = plt.subplots(len(pairs), 1, figsize=(9, 2.3 * len(pairs)), sharex=True, squeeze=False)
     units = {"i": "current [A]", "id": "id [A]", "iq": "iq [A]", "w": "speed [rad/s]"}
+
     for ax, (k, (y, yh)) in zip(axs[:, 0], pairs.items()):
         ax.plot(t, y, color=C[1], label=labels[0], lw=1.0)
         ax.plot(t, yh, color=C[0], label=labels[1], lw=1.0)
         ax.set_ylabel(units.get(k, k))
         ax.legend(loc="upper right", ncol=2)
+    
     axs[-1, 0].set_xlabel("time [s]")
     axs[0, 0].set_title(title)
     return _save(fig, path)

@@ -1,7 +1,7 @@
 # Identification report: demo_dc
 
 - motor: **dc**, samples: 20000, Ts = 0.0001 s
-- created: 2026-11-04 04:47:40
+- created: 2026-11-05 17:35:38
 
 ## 1. Least-squares (equation error)
 
@@ -34,7 +34,7 @@ Torque = identified Kt x mean current at each settled speed set-point (Kt_identi
 
 ## 3. Output-error refinement
 
-Replay measured voltage in the open-loop model; fit R, L, Kt, J, Tc, B (friction `stribeck`). cost 0.09183 -> 0.08383, 4 evaluations, 7 s.
+Replay measured voltage in the open-loop model; fit R, L, Kt, J, Tc, B (friction `stribeck`). cost 0.09183 -> 0.08383, 4 evaluations, 11 s.
 
 ## 4. Validation (independent experiment, voltage replay)
 

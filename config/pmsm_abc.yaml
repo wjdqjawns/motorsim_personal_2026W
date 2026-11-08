@@ -1,0 +1,42 @@
+# 3-phase PMSM with the full FOC chain of a real drive:
+#   ia,ib,ic -> Clarke -> Park(theta_e from encoder) -> PI (+decoupling) -> invPark -> SVPWM -> inverter
+# Run:   py -3.13 run.py simulate -c config/pmsm_abc.yaml                     (sim.png, foc.png, foc_zoom.png)
+#        py -3.13 run.py simulate -c config/pmsm_abc.yaml --inverter switching
+#        py -3.13 run.py simulate -c config/pmsm_abc.yaml --mode current
+name: pmsm_abc
+
+motor:
+  type: pmsm
+  frame: abc                 # dq = rotor-frame model (fast) | abc = 3-phase model + transforms + inverter
+  params: {R: 0.5, Ld: 0.8e-3, Lq: 1.2e-3, psi: 0.01, p: 4, J: 3.0e-5}
+  limits: {v_dc: 24.0, i_max: 10.0}
+  inverter:
+    type: average            # average = duty-averaged | switching = center-aligned PWM (ripple)
+    substeps: 1              # switching: split every PWM interval into this many RK4 steps
+
+friction:
+  model: stribeck
+  params: {B: 2.0e-5, Tc: 8.0e-3, Tst: 1.2e-2, ws: 3.0}
+
+load:
+  cogging: {amplitude: 0.0, periods: 24, phase: 0.0}
+
+control:
+  mode: speed                # voltage | current | torque | speed | position | vf | abc
+  Ts: 1.0e-4                 # = PWM period (one carrier period per control cycle)
+  bandwidth_hz: {current: 500, speed: 30, position: 5}
+  angle_offset_deg: 0.0      # encoder misalignment in electrical degrees (try 30)
+  delay_comp: true           # rotate the output voltage by 0.5 we Ts
+  current_sensors: 3         # 2 -> ic = -ia - ib
+  decoupling: true
+
+reference:
+  - {type: steps, values: [0, 150, -150, 50], duration: 0.075}
+reference_d: null            # id* (e.g. negative for field weakening)
+
+sensors: {current_noise: 0.02, encoder_cpr: 65536, speed_lpf_hz: 300}
+sim:
+  duration: 0.3
+  substeps: 4
+  seed: 0
+  fast_log: [0.1495, 0.1535]   # log every PWM switching instant in this window (speed reversal) -> foc_zoom.png

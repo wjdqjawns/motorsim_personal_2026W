@@ -8,10 +8,10 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from motorsim import simulate  # noqa: E402
-from motorsim.data import _from_frame  # noqa: E402
-from motorsim.ident import fit_static, identify_ls  # noqa: E402
-from motorsim.models.friction import static_friction  # noqa: E402
-from motorsim.signals import build  # noqa: E402
+from motorsim.core.io import from_frame  # noqa: E402
+from motorsim.core.analysis import fit_static, identify_ls  # noqa: E402
+from motorsim.core.model.friction import static_friction  # noqa: E402
+from motorsim.core.signals import build  # noqa: E402
 
 DC = {"motor": {"type": "dc", "params": {"R": 1.0, "L": 0.5e-3, "Kt": 0.05, "J": 2e-5}}}
 
@@ -100,7 +100,7 @@ def test_ls_identification_dc_noise_free():
          "reference": [{"type": "random_steps", "low": -150, "high": 150, "dwell": [0.05, 0.15]},
                        {"type": "multisine", "amplitude": 30, "f_min": 1, "f_max": 200, "n": 20}],
          "sim": {"duration": 0.8, "seed": 3}}
-    d = _from_frame(simulate(c).frame(0), None)
+    d = from_frame(simulate(c).frame(0), None)
     res = identify_ls(d, "dc", friction_models=["coulomb_viscous"])
     p = res.params
     for k, tol in (("R", 0.01), ("L", 0.03), ("Kt", 0.01), ("J", 0.01)):

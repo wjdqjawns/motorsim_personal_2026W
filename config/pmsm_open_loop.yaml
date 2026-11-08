@@ -1,0 +1,33 @@
+# Open-loop 3-phase drive: "give it a signal and it turns" (no current/speed feedback).
+#   mode vf  : reference = electrical frequency [Hz] -> |v| = v_per_hz * f + boost, rotating at f
+#   mode abc : reference_abc = three phase-voltage signals you define yourself
+# Run:   py -3.13 run.py simulate -c config/pmsm_open_loop.yaml
+#        py -3.13 run.py simulate -c config/pmsm_open_loop.yaml --mode abc
+name: pmsm_open_loop
+
+motor:
+  type: pmsm
+  frame: abc
+  params: {R: 0.5, Ld: 1.0e-3, Lq: 1.0e-3, psi: 0.01, p: 4, J: 3.0e-5}
+  limits: {v_dc: 24.0, i_max: 10.0}
+  inverter: {type: average}
+
+friction:
+  model: viscous
+  params: {B: 2.0e-5}
+
+control:
+  mode: vf
+  Ts: 1.0e-4
+  vf: {v_per_hz: 0.3, boost: 0.5}
+
+reference:                   # V/f: frequency ramp 0 -> 40 Hz (electrical) in 0.4 s, then hold
+  - {type: triangle, amplitude: 40, freq: 0.625, stop: 0.4}
+  - {type: constant, value: 40, start: 0.4}
+
+reference_abc:               # used with --mode abc: balanced 3-phase, 3 V amplitude, 20 Hz
+  - {type: sine, amplitude: 3.0, freq: 20, phase: 0.0}
+  - {type: sine, amplitude: 3.0, freq: 20, phase: -2.0943951}
+  - {type: sine, amplitude: 3.0, freq: 20, phase: 2.0943951}
+
+sim: {duration: 0.6, substeps: 4, seed: 0}

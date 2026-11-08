@@ -6,8 +6,8 @@ DC 모터 / PMSM 모델을 설정 파일 하나로 구성해서 폐루프 시뮬
 
 ```
 config (YAML) ──► simulate ──► 측정 데이터 (CSV/NPZ) ──┬─► LS 식별 ──► 마찰모델 비교(AIC/BIC) ──► OE 정밀화 ──► 검증
-                     ▲                                 │
-     실제 측정 CSV ───┼─────────────────────────────────┘
+                     ▲                               │
+     실제 측정 CSV ───|─────────────────────────-──────┘
                      └─► dataset (파라미터 랜덤화) ──► CNN 학습 ──► predict
 ```
 
@@ -27,7 +27,7 @@ py -3.13 -m pytest tests -q                    # 물리/식별 sanity test (약 
 
 | 명령 | 하는 일 |
 |---|---|
-| `simulate -c cfg [--mode M]` | 폐루프 시뮬레이션 1회 (batch 가능) → `sim.csv`, `sim.npz`, `sim.png` |
+| `simulate -c cfg [--mode M] [--frame dq\|abc] [--inverter average\|switching]` | 시뮬레이션 1회 (batch 가능) → `sim.csv`, `sim.npz`, `sim.png` (+ 3상이면 `foc.png`, `foc_zoom.png`, `sim_fast.csv`) |
 | `demo -c cfg` | **합성 end-to-end**: 숨겨진 "진짜" 모터로 식별·검증용 실험 데이터 생성 → 식별 → 검증 → 정답 대비 오차 리포트 |
 | `identify -c cfg --data id.csv [--val val.csv] [--fmap fmap.csv]` | 측정 데이터(실험 또는 시뮬레이션)로 LS → 마찰모델 선택 → OE → 검증 → `report.md`, `identified_params.yaml` |
 | `validate -c cfg -p identified_params.yaml --data val.csv` | 측정 전압을 모델에 재생해서 전류·속도를 비교 (sim vs real) |
@@ -42,13 +42,18 @@ py -3.13 -m pytest tests -q                    # 물리/식별 sanity test (약 
 |---|---|
 | `dc_basic.yaml`, `pmsm_basic.yaml` | 모든 키를 주석으로 설명한 기본 시뮬레이션 |
 | `demo_dc.yaml`, `demo_pmsm.yaml` | 합성 식별 연구 (진짜 모터 ≠ 제어기 공칭값, LuGre/Stribeck 마찰, 센서 노이즈) |
+| `pmsm_abc.yaml` | **3상 PMSM + 전체 FOC 체인** (Clarke/Park/SVPWM/인버터), PWM 스위칭 확대 구간 지정 |
+| `pmsm_open_loop.yaml` | 피드백 없이 신호만 주면 도는 모터: `vf`(V/f 주파수 램프), `abc`(3상 전압 직접 지정) |
 | `dataset_dc.yaml` | 학습용 랜덤화 데이터셋 |
 | `real_template.yaml` | **실제 데이터용 템플릿** (CSV 컬럼 매핑 / 단위 스케일) |
 
 주요 선택지:
 
-- `motor.type`: `dc` | `pmsm` (dq 모델, Ld≠Lq 가능, 극쌍수 p)
-- `control.mode`: `voltage` | `current` | `torque`(힘/토크 제어) | `speed` | `position`
+- `motor.type`: `dc` | `pmsm` (Ld≠Lq 가능, 극쌍수 p)
+- `motor.frame` (PMSM): `dq` = 회전좌표 모델(빠름) | `abc` = 3상 모델 + FOC + 인버터
+- `motor.inverter.type` (abc): `average` = 듀티 평균 | `switching` = center-aligned PWM, 스위칭 순간 단위로 정확히 적분
+- `control.mode`: `voltage` | `current` | `torque`(힘/토크 제어) | `speed` | `position`, abc 전용: `vf` | `abc`
+- abc FOC 옵션: `angle_offset_deg`(엔코더 정렬 오차), `delay_comp`, `current_sensors: 2|3`
   — 캐스케이드 PI, 공칭 모델 + 대역폭(`bandwidth_hz`)으로 게인 자동 설정, `gains`로 직접 지정 가능.
   제어기는 `control.nominal`(데이터시트 값)을 쓰고 플랜트는 `motor.params`(실제 값)를 씀 → 모델 불일치 재현.
 - `friction.model`: `none` | `viscous` | `coulomb` | `coulomb_viscous` | `stribeck` | `lugre`
@@ -64,6 +69,10 @@ py -3.13 -m pytest tests -q                    # 물리/식별 sanity test (약 
 - **DC**: `L di/dt = v − R i − Ke ω`, `J dω/dt = Kt i − T_f − T_L`
 - **PMSM (dq)**: `Ld did/dt = vd − R id + ωe Lq iq`, `Lq diq/dt = vq − R iq − ωe(Ld id + ψ)`,
   `Te = 1.5 p (ψ iq + (Ld − Lq) id iq)`, 전압 제한원 `|v| ≤ Vdc/√3`, dq 디커플링 + anti-windup
+- **PMSM (abc)**: 정지좌표 쇄교자속 `dψαβ/dt = vαβ − R iαβ` (vαβ = Clarke(va, vb, vc), 중성점 floating).
+  전류는 회전자 위치에 따른 인덕턴스로 계산합니다(`id = (ψd − ψ)/Ld`, `iq = ψq/Lq`, 역Park, 역Clarke → ia, ib, ic).
+  플랜트는 실제 회전자 각도를 쓰고 제어기는 엔코더 각도를 쓰기 때문에 정렬 오차·양자화 효과가 드러납니다.
+- **FOC 체인 (abc)**: `ia,ib,ic → Clarke → Park(θe = p·θenc + offset) → PI + 디커플링 → 역Park(θe + ½ωeTs) → SVPWM → 듀티 → 인버터`
 - **마찰**
   - Coulomb+viscous: `Tc sgn(ω) + B ω`
   - Stribeck: `[Tc + (Tst − Tc) e^{−|ω/ωs|^δ}] sgn(ω) + B ω`
@@ -71,6 +80,29 @@ py -3.13 -m pytest tests -q                    # 물리/식별 sanity test (약 
   - 불연속 모델은 **Karnopp stick-slip** 처리: `|T_drive| ≤ 정지마찰`이면 실제로 멈춰 있음
 - **적분**: 제어 주기 `Ts`마다 센서 → 제어기 → ZOH 전압, 플랜트는 RK4로 `substeps`개 구간 적분.
   모든 연산이 배치(N개 파라미터 세트 동시)로 벡터화되어 있음.
+
+## 3상 모터 직접 돌리기 (`Motor` API)
+
+제어기와 센서 없이 플랜트(마찰·부하 포함)만 있는 모터입니다. 전압을 넣으면 한 스텝씩 돌아갑니다.
+
+```python
+from motorsim import Motor
+m = Motor({"motor": {"type": "pmsm", "frame": "abc"}})   # 또는 YAML 경로
+m.inputs                                   # ('va', 'vb', 'vc')  — DC: ('v',), PMSM dq: ('vd', 'vq')
+out = m.step(va, vb, vc, dt=1e-5)          # → {'t','ia','ib','ic','id','iq','theta_e','w','theta','Te','Tf'}
+df  = m.run(u_array_or_function, dt=1e-5, n=...)   # 신호 배열 (3, T) 또는 u(t, state) 콜백
+```
+
+`examples/drive_motor.py`에 두 가지 예시가 있습니다. (1) 개루프 3상 정현파 주파수 램프를 주면 동기속도로 회전하고,
+(2) 라이브러리의 Clarke/Park 함수로 직접 짠 FOC 전류 루프를 붙인 예시입니다.
+
+FOC 검증용 테스트(`tests/test_foc.py`):
+- Clarke/Park 왕복 변환과 진폭 불변성
+- SVPWM 선형 영역(|v| ≤ Vdc/√3)
+- **abc + FOC + 인버터 결과가 dq 모델과 0.1 rad/s 이내로 일치** (실측 약 0.02 rad/s)
+- 상 a에 DC 전압을 주면 회전자가 정렬되는지
+- 각도 오차 30°일 때 토크가 cos 30°로 줄어드는지
+- V/f 개루프 기동 후 동기속도에 도달하는지
 
 ## 식별 방법
 
@@ -94,6 +126,7 @@ py -3.13 -m pytest tests -q                    # 물리/식별 sanity test (약 
 |---|---|
 | `demo_dc` (진짜 마찰 = LuGre, 노이즈/16-bit 엔코더) | R, L, Kt, J, Tc, B, Tst, ωs 모두 ≤ 0.7 % 오차, 검증 fit 99.2 % (i) / 99.9 % (ω) — 정답 모델 재생과 동일 수준 |
 | `demo_pmsm` (Ld≠Lq, Stribeck) | R, Ld, Lq, ψ, J, Tc, Tst, ωs, B 모두 ≤ 1.3 % 오차 |
+| `demo_pmsm_abc` (같은 모터를 3상 + FOC로 돌리고, 드라이브가 Clarke/Park로 계산한 id, iq로 식별) | 모두 ≤ 2.1 % 오차 |
 | CNN (3000 샘플, 30 epoch) | 중앙 상대오차 R 2.4 %, L 2.8 %, Kt 1.3 %, J 4.3 % / Tc 25 %, B는 식별 불가(R² < 0) |
 
 해석: 물리 기반 LS + 마찰 맵이 가장 정확합니다. CNN은 한 번 학습해 두면 즉시 추정할 수 있지만,
@@ -115,27 +148,44 @@ OE는 LS가 이미 정답에 가까울 때는 개선 폭이 작고, Stribeck 형
 ## 디렉터리
 
 ```
-run.py                 CLI 실행기 (src를 path에 추가)
+run.py                      CLI 실행기 (src를 path에 추가)
+examples/drive_motor.py     Motor API 예시 (개루프 3상 구동, 직접 짠 FOC)
 src/motorsim/
-  config.py            기본값, YAML 로드, 파라미터 랜덤화
-  models/motors.py     DC / PMSM 플랜트, RK4
-  models/friction.py   마찰 모델 + Karnopp/LuGre
-  control.py           PI(anti-windup), 캐스케이드 / FOC
-  sensors.py           전류 노이즈, 엔코더 양자화, 속도 추정
-  signals.py           기준/여기 신호
-  simulator.py         배치 폐루프 시뮬레이터
-  ident/ls.py          LS 식별 (전기 + 기계)
-  ident/friction_fit.py  마찰모델 피팅/비교, 정상상태 추출
-  ident/output_error.py  OE 식별, 전압 재생
-  validate.py, data.py 검증 지표, CSV 로딩/매핑
-  dataset.py, learn.py 데이터셋 생성, CNN 학습/추론
-  pipeline.py, cli.py  end-to-end 파이프라인, CLI
-tests/                 pytest
+  cli.py  main.py           argparse (pipeline.registry에서 명령 목록 생성)
+  core/                     ── 모터 종류와 무관한 엔진
+    config/   loader.py schema.py params.py      기본값, YAML 로드, flat 파라미터, 랜덤화
+    model/    friction.py integrators.py results.py   마찰(Karnopp/LuGre), RK4, SimResult
+    control/  pi.py transforms.py                PI(anti-windup), Clarke/Park/SVPWM
+    signals/  generator.py                       기준/여기 신호
+    sensors/  measurement.py                     전류 노이즈, 엔코더 양자화, 속도 추정
+    sim/      simulator.py drive.py motor.py     배치 시뮬레이터, ZOH 드라이브, Motor(step) API
+    io/       data_reader.py result_store.py param_store.py
+    analysis/ filters.py metrics.py validation.py
+              items/ equation_error.py friction_fit.py output_error.py
+    learning/ dataset.py network.py trainer.py
+    plot/     common.py  items/ simulation.py foc.py comparison.py friction.py learning.py
+  domains/                  ── 모터 종류별 플러그인 (같은 훅 인터페이스)
+    dc_motor/ dc_schema.py dc_model.py dc_control.py dc_ident.py
+    pmsm/     pmsm_schema.py pmsm_model.py(dq, abc) pmsm_control.py(dq, FOC) pmsm_inverter.py pmsm_ident.py
+  pipeline/                 ── 워크플로
+    registry.py executor.py   CLI 명령 등록/구현
+    runner.py experiments.py exporters.py   식별 파이프라인, demo, 마찰맵 실험, 리포트
+  utils/logger.py
+tests/                      pytest (test_motorsim.py, test_foc.py)
+archive/motorsim_flat_v0/   구조 변경 전 버전
 ```
+
+새 모터 종류(예: BLDC 사다리꼴, 스테퍼)는 `domains/<이름>/`에 같은 훅(`make_plant`, `make_controller`, `make_drive`,
+`electrical_ls`, ...)을 구현하고 `domains/__init__.py`의 `DOMAINS`에 등록하면 됩니다.
 
 ## 다음 단계 후보
 
 - 마찰 비대칭(Tc+/Tc−), 위치 의존 마찰, 코깅 토크 식별
-- 인버터 데드타임 / 전압 오차 모델 (실제 PMSM 저속 식별에서 중요)
+- 인버터 데드타임 / 스위치 전압강하 모델 (switching 인버터에 추가 — 실제 PMSM 저속 식별에서 중요)
+- abc 모델 확장: 역기전력 고조파, 상 불평형, 전류센서 게인/오프셋 오차
+- 엔코더 정렬 오차(`angle_offset_deg`) 자동 추정
 - LuGre σ0, σ1 식별용 presliding 실험 (작은 진폭 정현파 위치 제어)
 - CNN 개선: 데이터 증강, 더 많은 샘플, LS 결과를 입력으로 쓰는 하이브리드, 차분가능 시뮬레이터
+
+## Reference
+[1] sf

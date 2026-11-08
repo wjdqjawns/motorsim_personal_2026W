@@ -1,5 +1,5 @@
 # PMSM field-oriented control (average inverter model, dq frame).
-# Run:  python run.py simulate -c config/pmsm_basic.yaml
+# Run:  py -3.13 run.py simulate -c config/pmsm_basic.yaml
 name: pmsm_basic
 
 motor:
